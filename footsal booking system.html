@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Footsal Booking System</title>
+    <style>
+        /* Basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 700px;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .summary, .history, .ratings, .available-slots, .feedback-container {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #ratings input[type="radio"] {
+            margin-right: 5px;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+            margin-top: 5px;
+        }
+        .success-message {
+            color: green;
+            font-size: 0.9em;
+            display: none;
+            margin-top: 5px;
+        }
+        .history-list, .slots-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .history-list li, .slots-list li {
+            padding: 8px;
+            background-color: #e9ecef;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Title and Image -->
+    <h1>⚽ Advanced Footsal Booking System ⚽</h1>
+    
+    <!-- Booking Form -->
+    <div id="bookingForm">
+        <div class="form-group">
+            <label for="name">👤 Name:</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+            <div class="error-message" id="nameError">Please enter your name.</div>
+        </div>
+        <div class="form-group">
+            <label for="phone">📞 Phone Number:</label>
+            <input type="text" id="phone" placeholder="Enter your phone number" required>
+            <div class="error-message" id="phoneError">Please enter a valid phone number.</div>
+        </div>
+        <div class="form-group">
+            <label for="date">📅 Booking Date:</label>
+            <input type="date" id="date" required>
+            <div class="error-message" id="dateError">Please select a valid date.</div>
+        </div>
+        <div class="form-group">
+            <label for="time">🕒 Time Slot:</label>
+            <select id="time" required>
+                <option value="">Select Time Slot</option>
+                <option value="6 AM - 8 AM">6 AM - 8 AM</option>
+                <option value="8 AM - 10 AM">8 AM - 10 AM</option>
+                <option value="4 PM - 6 PM">4 PM - 6 PM</option>
+                <option value="6 PM - 8 PM">6 PM - 8 PM</option>
+            </select>
+            <div class="error-message" id="timeError">Please select a time slot.</div>
+        </div>
+        <div class="form-group">
+            <label for="players">👥 Number of Players:</label>
+            <input type="number" id="players" placeholder="Enter number of players" min="1" required>
+            <div class="error-message" id="playersError">Please enter the number of players.</div>
+        </div>
+        <button onclick="bookFootsal()">📅 Book Now</button>
+    </div>
+
+    <!-- Booking Summary -->
+    <div id="summary" class="summary">
+        <h2>🎉 Booking Confirmation 🎉</h2>
+        <p id="bookingDetails"></p>
+        <button onclick="downloadSummary()">📄 Download as PDF</button>
+        <button onclick="printSummary()">🖨️ Print Confirmation</button>
+        <button onclick="showRatingForm()">🌟 Rate Your Experience</button>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">Booking successful!</div>
+
+    <!-- Error Message for Double Booking -->
+    <div class="error-message" id="bookingError">⚠️ This slot is already booked. Please choose another time or date.</div>
+
+    <!-- Rating and Feedback -->
+    <div id="ratings" class="ratings">
+        <h2>🌟 Rate Your Booking</h2>
+        <label>Rating:</label>
+        <div>
+            <input type="radio" name="rating" value="1"> 1
+            <input type="radio" name="rating" value="2"> 2
+            <input type="radio" name="rating" value="3"> 3
+            <input type="radio" name="rating" value="4"> 4
+            <input type="radio" name="rating" value="5"> 5
+        </div>
+        <div class="form-group">
+            <label for="feedback">💬 Feedback:</label>
+            <textarea id="feedback" placeholder="Write your feedback here"></textarea>
+        </div>
+        <button onclick="submitFeedback()">📥 Submit Feedback</button>
+    </div>
+
+    <!-- Booking History -->
+    <div id="history" class="history">
+        <h2>📋 Booking History</h2>
+        <ul id="historyList" class="history-list"></ul>
+    </div>
+
+    <!-- Available Slots -->
+    <div id="availableSlots" class="available-slots">
+        <h2>🕒 Available Slots</h2>
+        <ul id="slotsList" class="slots-list"></ul>
+    </div>
+</div>
+
+<script>
+    const bookings = [];
+    let uniqueID = 1;
+
+    function bookFootsal() {
+        clearErrors();
+
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const date = document.getElementById("date").value;
+        const time = document.getElementById("time").value;
+        const players = document.getElementById("players").value;
+
+        // Validate inputs
+        if (!name || !phone || !date || !time || players < 1) {
+            showErrors(name, phone, date, time, players);
+            return;
+        }
+
+        // Check if slot is already booked
+        if (isSlotTaken(date, time)) {
+            document.getElementById("bookingError").style.display = "block";
+            return;
+        }
+
+        // Generate unique ID and calculate cost
+        const bookingID = `FBS${uniqueID++}`;
+        const cost = players * 100;
+        const bookingDetails = `
+            <strong>Booking ID:</strong> ${bookingID}<br>
+            <strong>Name:</strong> ${name}<br>
+            <strong>Phone:</strong> ${phone}<br>
+            <strong>Date:</strong> ${date}<br>
+            <strong>Time Slot:</strong> ${time}<br>
+            <strong>Number of Players:</strong> ${players}<br>
+            <strong>Total Cost:</strong> NPR ${cost}
+        `;
+
+        // Store booking in history
+        bookings.push({
+            id: bookingID,
+            name,
+            phone,
+            date,
+            time,
+            players,
+            cost,
+        });
+
+        document.getElementById("bookingDetails").innerHTML = bookingDetails;
+        document.getElementById("summary").style.display = "block";
+        document.getElementById("bookingForm").style.display = "none";
+        document.getElementById("successMessage").style.display = "block";
+
+        updateHistory();
+        setTimeout(() => document.getElementById("successMessage").style.display = "none", 3000);
+    }
+
+    function clearErrors() {
+        document.querySelectorAll(".error-message").forEach(error => error.style.display = "none");
+        document.getElementById("bookingError").style.display = "none";
+    }
+
+    function showErrors(name, phone, date, time, players) {
+        if (!name) document.getElementById("nameError").style.display = "block";
+        if (!phone) document.getElementById("phoneError").style.display = "block";
+        if (!date) document.getElementById("dateError").style.display = "block";
+        if (!time) document.getElementById("timeError").style.display = "block";
+        if (!players) document.getElementById("playersError").style.display = "block";
+    }
+
+    function isSlotTaken(date, time) {
+        return bookings.some(booking => booking.date === date && booking.time === time);
+    }
+
+    function downloadSummary() {
+        alert("Downloading summary as PDF...");
+    }
+
+    function printSummary() {
+        alert("Sending summary to the printer...");
+    }
+
+    function updateHistory() {
+        const historyList = document.getElementById("historyList");
+        historyList.innerHTML = bookings.map(booking => `
+            <li>${booking.date} - ${booking.time} (${booking.players} players) - NPR ${booking.cost}</li>
+        `).join("");
+        document.getElementById("history").style.display = "block";
+    }
+
+    function showAvailableSlots() {
+        const slotList = ["6 AM - 8 AM", "8 AM - 10 AM", "4 PM - 6 PM", "6 PM - 8 PM"];
+        const bookedSlots = bookings.map(booking => `${booking.date}: ${booking.time}`);
+        const availableSlots = slotList.filter(slot => !bookedSlots.includes(slot));
+        document.getElementById("slots").innerHTML = availableSlots.join("<br>");
+        document.getElementById("availableSlots").style.display = "block";
+    }
+
+    function showRatingForm() {
+        document.getElementById("ratings").style.display = "block";
+    }
+
+    function submitFeedback() {
+        const feedback = document.getElementById("feedback").value;
+        const rating = document.querySelector('input[name="rating"]:checked').value;
+        alert(`Thank you for your feedback!\nRating: ${rating} stars\nFeedback: ${feedback}`);
+        document.getElementById("ratings").style.display = "none";
+    }
+</script>
+
+</body>
+</html>

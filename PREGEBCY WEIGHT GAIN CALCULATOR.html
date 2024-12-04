@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pregnancy Weight Gain Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* General Styles */
+        body {
+            background: linear-gradient(135deg, #ff7b7b, #ff6f61);
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+            color: #fff;
+        }
+
+        .form-group {
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            color: #ffeb3b;
+            margin-bottom: 5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #ffeb3b;
+            background-color: #fff;
+            color: #333;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            border-color: #ff9800;
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+        }
+
+        button {
+            background-color: #ff9800;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #ff5722;
+            transform: scale(1.05);
+        }
+
+        #result {
+            display: none;
+            margin-top: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #alert {
+            color: #ff5722;
+            font-weight: bold;
+            display: none;
+        }
+
+        canvas {
+            margin-top: 30px;
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        #history {
+            margin-top: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .weight-history {
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #ffeb3b;
+            padding-bottom: 10px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Pregnancy Weight Gain Tracker</h1>
+
+        <form id="calculatorForm" class="fade-in">
+            <div class="form-group">
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="birthdate">Your Birth Date:</label>
+                <input type="date" id="birthdate" required>
+            </div>
+
+            <div class="form-group">
+                <label for="weight">Current Weight (kg):</label>
+                <input type="number" id="weight" required>
+            </div>
+
+            <div class="form-group">
+                <label for="height">Height (cm):</label>
+                <input type="number" id="height" required>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age (years):</label>
+                <input type="number" id="age" disabled>
+            </div>
+
+            <div class="form-group">
+                <label for="week">Pregnancy Week:</label>
+                <input type="number" id="week" required min="1" max="40">
+            </div>
+
+            <div class="form-group">
+                <label for="trimester">Trimester:</label>
+                <select id="trimester" required>
+                    <option value="1">First Trimester</option>
+                    <option value="2">Second Trimester</option>
+                    <option value="3">Third Trimester</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="goal">Goal Weight Gain (kg):</label>
+                <input type="number" id="goal" required>
+            </div>
+
+            <div class="form-group">
+                <label for="activityLevel">Physical Activity Level:</label>
+                <select id="activityLevel">
+                    <option value="1">Low</option>
+                    <option value="2">Moderate</option>
+                    <option value="3">High</option>
+                </select>
+            </div>
+
+            <button type="button" onclick="calculate()">Calculate</button>
+        </form>
+
+        <div id="alert">Please fill out all fields correctly.</div>
+        <div id="result"></div>
+
+        <canvas id="chart"></canvas>
+
+        <button onclick="showHistory()">Show History</button>
+        <button onclick="exportToCSV()">Export to CSV</button>
+        <button onclick="exportToPDF()">Export to PDF</button>
+        <button onclick="emailReport()">Email Report</button>
+        
+        <div id="history"></div>
+    </div>
+
+    <script>
+        const previousCalculations = [];
+
+        // Function to calculate age based on the birthdate
+        function calculateAge(birthdate) {
+            const today = new Date();
+            const birthDate = new Date(birthdate);
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                return age - 1;
+            }
+            return age;
+        }
+
+        function calculate() {
+            const name = document.getElementById("name").value;
+            const birthdate = document.getElementById("birthdate").value;
+            const weight = parseFloat(document.getElementById("weight").value);
+            const height = parseFloat(document.getElementById("height").value);
+            const week = parseInt(document.getElementById("week").value);
+            const trimester = parseInt(document.getElementById("trimester").value);
+            const goal = parseFloat(document.getElementById("goal").value);
+            const activityLevel = document.getElementById("activityLevel").value;
+
+            const age = calculateAge(birthdate);
+            document.getElementById("age").value = age;
+
+            if (!name || !birthdate || !weight || !height || !week || !goal || isNaN(weight) || isNaN(height) || isNaN(goal)) {
+                document.getElementById("alert").style.display = 'block';
+                return;
+            }
+
+            // Calculate BMI
+            const bmi = weight / ((height / 100) ** 2);
+
+            // Calculate daily caloric intake based on activity level
+            let dailyCalories;
+            switch (activityLevel) {
+                case '1':
+                    dailyCalories = 2000;
+                    break;
+                case '2':
+                    dailyCalories = 2200;
+                    break;
+                case '3':
+                    dailyCalories = 2400;
+                    break;
+                default:
+                    dailyCalories = 2000;
+            }
+
+            // Store calculation
+            const calculation = { name, weight, bmi, goal, age };
+            previousCalculations.push(calculation);
+
+            // Display result
+            const resultDiv = document.getElementById("result");
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `
+                <h2>Calculation Result</h2>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>BMI:</strong> ${bmi.toFixed(2)}</p>
+                <p><strong>Recommended Goal Weight Gain:</strong> ${goal} kg</p>
+                <p><strong>Age:</strong> ${age} years</p>
+                <p><strong>Activity Level:</strong> ${dailyCalories} Calories/Day</p>
+            `;
+
+            // Generate Chart
+            generateChart();
+
+            document.getElementById("alert").style.display = 'none';
+        }
+
+        function generateChart() {
+            const ctx = document.getElementById("chart").getContext("2d");
+            const chartData = {
+                labels: ["First Trimester", "Second Trimester", "Third Trimester"],
+                datasets: [{
+                    label: "Weight Gain",
+                    data: [5, 7, 9], // Sample weight gain data
+                    backgroundColor: "rgba(255, 99, 132, 0.2)",
+                    borderColor: "rgba(255, 99, 132, 1)",
+                    borderWidth: 1
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        function showHistory() {
+            const historyDiv = document.getElementById("history");
+            historyDiv.style.display = 'block';
+            historyDiv.innerHTML = "<h3>Past Records</h3>";
+
+            previousCalculations.forEach((calc, index) => {
+                historyDiv.innerHTML += `
+                    <div class="weight-history">
+                        <p><strong>Record ${index + 1}:</strong></p>
+                        <p>Name: ${calc.name}</p>
+                        <p>Weight: ${calc.weight} kg</p>
+                        <p>BMI: ${calc.bmi.toFixed(2)}</p>
+                        <p>Goal: ${calc.goal} kg</p>
+                    </div>
+                `;
+            });
+        }
+
+        function exportToCSV() {
+            const csvData = "Name,Weight,BMI,Goal\n" + previousCalculations.map(calc => {
+                return `${calc.name},${calc.weight},${calc.bmi.toFixed(2)},${calc.goal}`;
+            }).join("\n");
+
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'pregnancy_weight_tracker.csv';
+            link.click();
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Pregnancy Weight Tracker", 10, 10);
+            doc.text("Previous Calculations:", 10, 20);
+
+            previousCalculations.forEach((calc, index) => {
+                doc.text(`Record ${index + 1}: ${calc.name} - ${calc.weight} kg`, 10, 30 + (index * 10));
+            });
+
+            doc.save("pregnancy_weight_report.pdf");
+        }
+
+        function emailReport() {
+            alert("Email functionality not implemented in this demo.");
+        }
+    </script>
+</body>
+</html>

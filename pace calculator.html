@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pace Calculator</title>
+<style>
+  /* Basic Styles */
+  body {
+    font-family: Arial, sans-serif;
+    background: #1d1f21;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    transition: background 0.3s, color 0.3s;
+  }
+  .container {
+    text-align: center;
+    max-width: 500px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 20px #888;
+    transition: box-shadow 0.3s;
+  }
+  h1 {
+    font-size: 2em;
+    color: #ff8c00;
+  }
+  input, button {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+    border: none;
+    outline: none;
+    font-size: 1em;
+  }
+  input {
+    background: #333;
+    color: #fff;
+    text-align: center;
+  }
+  button {
+    background: #ff8c00;
+    color: #fff;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #ff6500;
+  }
+  /* Toggleable features - Glowing effects */
+  .glow {
+    text-shadow: 0 0 10px #ff8c00, 0 0 20px #ff8c00, 0 0 30px #ff8c00;
+  }
+  .glow-effect {
+    box-shadow: 0 0 15px #ff8c00, 0 0 30px #ff8c00;
+  }
+  .advanced-section {
+    margin-top: 20px;
+    display: none;
+  }
+  /* Dark mode */
+  .dark-mode {
+    background: #333;
+    color: #ff8c00;
+  }
+</style>
+</head>
+<body>
+  <div class="container glow">
+    <h1>Pace Calculator</h1>
+    <input type="number" id="distance" placeholder="Enter Distance (km)" class="glow-effect">
+    <input type="number" id="time" placeholder="Enter Time (minutes)" class="glow-effect">
+    <button onclick="calculatePace()" class="glow-effect">Calculate Pace</button>
+    <div id="result"></div>
+
+    <!-- Toggle for Advanced Features -->
+    <button onclick="toggleAdvanced()" class="glow-effect">Toggle Advanced Features</button>
+    <div class="advanced-section" id="advanced-section">
+      <p class="glow">Advanced Features:</p>
+      <button onclick="toggleGlow()">Toggle Glow Effect</button>
+      <button onclick="toggleDistanceUnits()">Toggle Distance Units (Miles/Km)</button>
+      <button onclick="storeHistory()">Store History</button>
+      <button onclick="showHistory()">Show History</button>
+      <button onclick="resetCalculator()">Reset Calculator</button>
+      <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+      <button onclick="calculateFutureTime()">Calculate Future Time</button>
+      <button onclick="estimateCalories()">Estimate Calories Burned</button>
+      <button onclick="showMotivationalQuote()">Show Motivational Quote</button>
+      <div id="history"></div>
+      <div id="extra-results"></div>
+    </div>
+  </div>
+
+<script>
+  let isAdvanced = false;
+  let glowEffect = true;
+  let distanceInKm = true;
+  let darkMode = false;
+  let history = [];
+  const quotes = [
+    "Push yourself because no one else is going to do it for you.",
+    "Success doesn’t just find you. You have to go out and get it.",
+    "Great things never come from comfort zones.",
+    "Dream it. Wish it. Do it.",
+    "Success is what comes after you stop making excuses."
+  ];
+
+  function calculatePace() {
+    const distance = parseFloat(document.getElementById('distance').value);
+    const time = parseFloat(document.getElementById('time').value);
+    if (!distance || !time || distance <= 0 || time <= 0) {
+      document.getElementById('result').innerHTML = "Please enter valid inputs.";
+      return;
+    }
+
+    const pace = time / distance;
+    const minutes = Math.floor(pace);
+    const seconds = Math.round((pace - minutes) * 60);
+    document.getElementById('result').innerHTML = `Your pace: ${minutes} min ${seconds} sec per km`;
+    if (glowEffect) document.getElementById('result').classList.add('glow-effect');
+  }
+
+  function toggleAdvanced() {
+    isAdvanced = !isAdvanced;
+    document.getElementById('advanced-section').style.display = isAdvanced ? 'block' : 'none';
+  }
+
+  function toggleGlow() {
+    glowEffect = !glowEffect;
+    document.querySelectorAll('.glow').forEach(el => el.classList.toggle('glow'));
+    document.querySelectorAll('.glow-effect').forEach(el => el.classList.toggle('glow-effect'));
+  }
+
+  function toggleDistanceUnits() {
+    distanceInKm = !distanceInKm;
+    document.getElementById('distance').placeholder = distanceInKm ? "Enter Distance (km)" : "Enter Distance (miles)";
+  }
+
+  function storeHistory() {
+    const distance = parseFloat(document.getElementById('distance').value);
+    const time = parseFloat(document.getElementById('time').value);
+    if (!distance || !time || distance <= 0 || time <= 0) {
+      alert("Please enter valid values to store.");
+      return;
+    }
+    history.push({ distance: distance, time: time, date: new Date().toLocaleString() });
+    alert("History stored!");
+  }
+
+  function showHistory() {
+    let historyHtml = "<h3>History:</h3>";
+    history.forEach(entry => {
+      historyHtml += `<p>${entry.date} - Distance: ${entry.distance} km, Time: ${entry.time} min</p>`;
+    });
+    document.getElementById('history').innerHTML = historyHtml;
+  }
+
+  function resetCalculator() {
+    document.getElementById('distance').value = '';
+    document.getElementById('time').value = '';
+    document.getElementById('result').innerHTML = '';
+    document.getElementById('extra-results').innerHTML = '';
+  }
+
+  function toggleDarkMode() {
+    darkMode = !darkMode;
+    document.body.classList.toggle("dark-mode");
+  }
+
+  function calculateFutureTime() {
+    const distance = parseFloat(prompt("Enter the future distance (km):"));
+    const pace = parseFloat(document.getElementById('time').value) / parseFloat(document.getElementById('distance').value);
+    if (!distance || distance <= 0) {
+      alert("Enter a valid distance.");
+      return;
+    }
+    const futureTime = (distance * pace).toFixed(2);
+    document.getElementById('extra-results').innerHTML = `Estimated time for ${distance} km: ${futureTime} minutes.`;
+  }
+
+  function estimateCalories() {
+    const weight = parseFloat(prompt("Enter your weight (kg):"));
+    const distance = parseFloat(document.getElementById('distance').value);
+    if (!weight || weight <= 0) {
+      alert("Enter a valid weight.");
+      return;
+    }
+    const calories = (weight * distance * 1.036).toFixed(2);
+    document.getElementById('extra-results').innerHTML = `Estimated calories burned: ${calories} kcal`;
+  }
+
+  function showMotivationalQuote() {
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    document.getElementById('extra-results').innerHTML = `Motivational Quote: "${randomQuote}"`;
+  }
+</script>
+</body>
+</html>

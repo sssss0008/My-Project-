@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌟 Ideal Weight & BMI Calculator 🌟</title>
+    <style>
+        /* Basic styling and animations */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(120deg, #f6d365, #fda085);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .calculator-container {
+            background-color: #ffffff;
+            padding: 2em;
+            border-radius: 12px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+            animation: fadeIn 1s ease-out;
+            position: relative;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1::before {
+            content: "🧮";
+            margin-right: 8px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: #fda085;
+            outline: none;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .calculate-btn, .clear-btn, .history-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .calculate-btn {
+            background: #fda085;
+            color: #fff;
+        }
+
+        .calculate-btn:hover {
+            background: #f6d365;
+        }
+
+        .calculate-btn::before {
+            content: "💪";
+            margin-right: 8px;
+        }
+
+        .clear-btn {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .clear-btn:hover {
+            background: #ccc;
+        }
+
+        .history-btn {
+            background: #82c91e;
+            color: #fff;
+        }
+
+        .history-btn:hover {
+            background: #63a917;
+        }
+
+        .result, .advice, .tips {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #444;
+            animation: slideIn 1s ease-in-out;
+        }
+
+        .result-icon {
+            font-size: 2em;
+            margin-top: 15px;
+        }
+
+        .advice {
+            font-size: 16px;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .tips {
+            font-size: 14px;
+            color: #888;
+            font-style: italic;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #82c91e;
+            width: 0;
+            transition: width 1s ease;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Ideal Weight & BMI Calculator</h1>
+        <label for="gender">Gender: 👤</label>
+        <select id="gender">
+            <option value="male">Male 🚹</option>
+            <option value="female">Female 🚺</option>
+        </select>
+
+        <label for="age">Age: 🎂</label>
+        <input type="number" id="age" placeholder="Enter age">
+
+        <label for="height">Height (cm): 📏</label>
+        <input type="number" id="height" placeholder="Enter height in cm">
+
+        <label for="weight">Current Weight (kg): ⚖️</label>
+        <input type="number" id="weight" placeholder="Enter weight in kg">
+
+        <div class="button-container">
+            <button class="calculate-btn" onclick="calculateIdealWeight()">Calculate</button>
+            <button class="clear-btn" onclick="clearInputs()">Clear</button>
+            <button class="history-btn" onclick="showHistory()">History</button>
+        </div>
+
+        <div id="result" class="result"></div>
+        <div class="progress-bar-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="resultIcon" class="result-icon"></div>
+        <div id="advice" class="advice"></div>
+        <div id="tips" class="tips"></div>
+    </div>
+
+    <script>
+        let history = [];
+
+        function calculateIdealWeight() {
+            const gender = document.getElementById("gender").value;
+            const age = parseInt(document.getElementById("age").value);
+            const height = parseFloat(document.getElementById("height").value);
+            const weight = parseFloat(document.getElementById("weight").value);
+            const resultDiv = document.getElementById("result");
+            const resultIconDiv = document.getElementById("resultIcon");
+            const adviceDiv = document.getElementById("advice");
+            const tipsDiv = document.getElementById("tips");
+            const progressBar = document.getElementById("progressBar");
+
+            if (isNaN(height) || height <= 0 || isNaN(weight) || weight <= 0 || isNaN(age) || age <= 0) {
+                resultDiv.textContent = "❌ Please enter valid age, height, and weight.";
+                resultIconDiv.innerHTML = "⚠️";
+                adviceDiv.textContent = "";
+                tipsDiv.textContent = "";
+                return;
+            }
+
+            let idealWeight;
+            if (gender === "male") {
+                idealWeight = 50 + 0.9 * (height - 152);
+            } else {
+                idealWeight = 45.5 + 0.9 * (height - 152);
+            }
+
+            const heightInMeters = height / 100;
+            const bmi = weight / (heightInMeters * heightInMeters);
+            resultDiv.textContent = `✨ Ideal Weight: ${idealWeight.toFixed(1)} kg | BMI: ${bmi.toFixed(1)}`;
+            resultIconDiv.innerHTML = bmi > 0 ? "💪" : "";
+
+            if (bmi < 18.5) {
+                adviceDiv.textContent = "📉 Underweight: Consider a balanced diet to gain weight.";
+                tipsDiv.textContent = "Tip: High-calorie foods and strength training can help.";
+                progressBar.style.width = "25%";
+            } else if (bmi >= 18.5 && bmi <= 24.9) {
+                adviceDiv.textContent = "✅ Normal: Keep up the good work and maintain a healthy lifestyle!";
+                tipsDiv.textContent = "Tip: A balanced diet and regular exercise can keep you on track!";
+                progressBar.style.width = "50%";
+            } else if (bmi >= 25 && bmi <= 29.9) {
+                adviceDiv.textContent = "⚠️ Overweight: Consider regular exercise and a balanced diet.";
+                tipsDiv.textContent = "Tip: Reduce processed food and increase physical activity.";
+                progressBar.style.width = "75%";
+            } else {
+                adviceDiv.textContent = "❗ Obese: Consult a healthcare provider for personalized advice.";
+                tipsDiv.textContent = "Tip: Consult a doctor for a personalized health plan.";
+                progressBar.style.width = "100%";
+            }
+
+            history.push(`Gender: ${gender}, Age: ${age}, Height: ${height} cm, Weight: ${weight} kg, Ideal Weight: ${idealWeight.toFixed(1)} kg, BMI: ${bmi.toFixed(1)}`);
+            localStorage.setItem("bmiHistory", JSON.stringify(history));
+        }
+
+        function clearInputs() {
+            document.getElementById("age").value = "";
+            document.getElementById("height").value = "";
+            document.getElementById("weight").value = "";
+            document.getElementById("result").textContent = "";
+            document.getElementById("resultIcon").innerHTML = "";
+            document.getElementById("advice").textContent = "";
+            document.getElementById("tips").textContent = "";
+            document.getElementById("progressBar").style.width = "0%";
+        }
+
+        function showHistory() {
+            const savedHistory = localStorage.getItem("bmiHistory");
+            if (savedHistory) {
+                alert("History:\n" + JSON.parse(savedHistory).join("\n"));
+            } else {
+                alert("No history available.");
+            }
+        }
+    </script>
+</body>
+</html>

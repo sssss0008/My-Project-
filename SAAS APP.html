@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced SaaS App with More Features</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .features, .pricing, .profile, .dashboard, .reset-password, .feedback, .admin-dashboard, .invoice {
+      margin-bottom: 30px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .features ul {
+      list-style: none;
+      padding: 0;
+    }
+    .features li {
+      padding: 5px 0;
+    }
+    .pricing .plan {
+      display: inline-block;
+      width: 30%;
+      margin: 0 1%;
+      padding: 20px;
+      background-color: #ecf0f1;
+      border-radius: 8px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .pricing .plan h3 {
+      margin: 10px 0;
+    }
+    .pricing .plan button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    footer {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+    }
+    input, button, select, textarea {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .hidden {
+      display: none;
+    }
+    .admin-dashboard ul, .invoice ul {
+      list-style: none;
+      padding: 0;
+    }
+    .admin-dashboard li, .invoice li {
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #ecf0f1;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <h1>Advanced SaaS Application</h1>
+    <nav>
+      <a href="javascript:void(0)" onclick="showSection('login')">Login</a> |
+      <a href="javascript:void(0)" onclick="showSection('signup')">Sign Up</a> |
+      <a href="javascript:void(0)" onclick="showSection('dashboard')">Dashboard</a> |
+      <a href="javascript:void(0)" onclick="showSection('profile')">Profile</a> |
+      <a href="javascript:void(0)" onclick="showSection('reset-password')">Reset Password</a> |
+      <a href="javascript:void(0)" onclick="showSection('feedback')">Feedback</a> |
+      <a href="javascript:void(0)" onclick="showSection('admin-dashboard')">Admin Dashboard</a> |
+      <a href="javascript:void(0)" onclick="showSection('invoice')">Generate Invoice</a>
+    </nav>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+
+    <!-- Login Section -->
+    <div id="login" class="hidden">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+      <p>Don't have an account? <a href="javascript:void(0)" onclick="showSection('signup')">Sign Up</a></p>
+      <p><a href="javascript:void(0)" onclick="showSection('reset-password')">Forgot Password?</a></p>
+    </div>
+
+    <!-- Sign Up Section -->
+    <div id="signup" class="hidden">
+      <h2>Sign Up</h2>
+      <form id="signupForm">
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <button type="submit">Sign Up</button>
+      </form>
+      <p>Already have an account? <a href="javascript:void(0)" onclick="showSection('login')">Login</a></p>
+    </div>
+
+    <!-- Reset Password Section -->
+    <div id="reset-password" class="hidden">
+      <h2>Reset Password</h2>
+      <form id="resetPasswordForm">
+        <input type="email" id="resetEmail" placeholder="Enter your email" required>
+        <button type="submit">Reset Password</button>
+      </form>
+      <p><a href="javascript:void(0)" onclick="showSection('login')">Back to Login</a></p>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="hidden">
+      <h2>Welcome to Your Dashboard</h2>
+      <p>Here you can manage your data, view reports, and more.</p>
+      <h3>Your Subscription:</h3>
+      <p id="subscriptionStatus">No subscription selected yet.</p>
+      <h3>Your Subscription History:</h3>
+      <ul id="subscriptionHistory">
+        <!-- Populated dynamically -->
+      </ul>
+      <div class="pricing">
+        <div class="plan" onclick="selectPlan('Basic')">
+          <h3>Basic Plan</h3>
+          <p>$10/month</p>
+          <button>Select Plan</button>
+        </div>
+        <div class="plan" onclick="selectPlan('Standard')">
+          <h3>Standard Plan</h3>
+          <p>$20/month</p>
+          <button>Select Plan</button>
+        </div>
+        <div class="plan" onclick="selectPlan('Premium')">
+          <h3>Premium Plan</h3>
+          <p>$30/month</p>
+          <button>Select Plan</button>
+        </div>
+      </div>
+      <h3>Your Activity:</h3>
+      <div id="activityLogs">
+        <p>No activity yet.</p>
+      </div>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profile" class="hidden">
+      <h2>Your Profile</h2>
+      <form id="profileForm">
+        <input type="text" id="profileName" placeholder="Full Name" required>
+        <input type="email" id="profileEmail" placeholder="Email" required>
+        <input type="password" id="profilePassword" placeholder="New Password">
+        <button type="submit">Update Profile</button>
+      </form>
+    </div>
+
+    <!-- Feedback Section -->
+    <div id="feedback" class="hidden">
+      <h2>Your Feedback</h2>
+      <form id="feedbackForm">
+        <textarea id="feedbackText" placeholder="Share your experience..." required></textarea>
+        <button type="submit">Submit Feedback</button>
+      </form>
+    </div>
+
+    <!-- Admin Dashboard Section -->
+    <div id="admin-dashboard" class="hidden">
+      <h2>Admin Dashboard</h2>
+      <h3>User Management:</h3>
+      <ul id="userList">
+        <li>User 1 <button onclick="blockUser(1)">Block</button></li>
+        <li>User 2 <button onclick="blockUser(2)">Block</button></li>
+      </ul>
+      <h3>Analytics:</h3>
+      <p>Total Active Users: <span id="activeUsersCount">0</span></p>
+      <p>Total Subscriptions: <span id="totalSubscriptionsCount">0</span></p>
+    </div>
+
+    <!-- Invoice Section -->
+    <div id="invoice" class="hidden">
+      <h2>Generate Invoice</h2>
+      <form id="invoiceForm">
+        <input type="text" id="invoiceName" placeholder="Client Name" required>
+        <input type="email" id="invoiceEmail" placeholder="Client Email" required>
+        <select id="invoicePlan">
+          <option value="Basic">Basic Plan - $10</option>
+          <option value="Standard">Standard Plan - $20</option>
+          <option value="Premium">Premium Plan - $30</option>
+        </select>
+        <button type="submit">Generate Invoice</button>
+      </form>
+      <h3>Generated Invoice:</h3>
+      <ul id="invoiceDetails">
+        <!-- Populated dynamically -->
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2024 Advanced SaaS App</p>
+  </footer>
+
+  <script>
+    // Function to show sections
+    function showSection(id) {
+      const sections = document.querySelectorAll('.container > div');
+      sections.forEach((section) => section.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    // Handling login
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      alert('Login Successful');
+      showSection('dashboard');
+    });
+
+    // Handling signup
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      alert('Sign Up Successful');
+      showSection('login');
+    });
+
+    // Handling reset password
+    document.getElementById('resetPasswordForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      alert('Password Reset Link Sent');
+      showSection('login');
+    });
+
+    // Handling profile update
+    document.getElementById('profileForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      alert('Profile Updated');
+    });
+
+    // Handling feedback submission
+    document.getElementById('feedbackForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      alert('Thank you for your feedback!');
+    });
+
+    // Handling plan selection
+    function selectPlan(plan) {
+      document.getElementById('subscriptionStatus').innerText = `You have selected the ${plan} plan.`;
+    }
+
+    // Handling blocking user (Admin)
+    function blockUser(userId) {
+      alert(`User ${userId} has been blocked.`);
+    }
+
+    // Handling invoice generation
+    document.getElementById('invoiceForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const clientName = document.getElementById('invoiceName').value;
+      const clientEmail = document.getElementById('invoiceEmail').value;
+      const plan = document.getElementById('invoicePlan').value;
+      const invoiceDetails = `
+        <li>Client Name: ${clientName}</li>
+        <li>Client Email: ${clientEmail}</li>
+        <li>Plan: ${plan}</li>
+      `;
+      document.getElementById('invoiceDetails').innerHTML = invoiceDetails;
+    });
+  </script>
+</body>
+</html>

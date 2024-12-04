@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calorie Burn Calculator</title>
+    <style>
+        /* Global Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Body and Background Animation */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffb3ba, #ffdfba);
+            background-size: 400% 400%;
+            animation: backgroundAnimate 10s infinite alternate;
+            transition: background-color 0.3s ease;
+            color: #333;
+            overflow-y: auto;
+        }
+
+        @keyframes backgroundAnimate {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        /* Calculator Container Styling */
+        .calculator-container {
+            background-color: #fff;
+            padding: 2rem;
+            box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            border: 3px solid #ff6f61;
+        }
+
+        .calculator-container:hover {
+            transform: scale(1.03);
+        }
+
+        /* Logo */
+        .logo {
+            width: 100px;
+            margin-bottom: 1rem;
+        }
+
+        /* Title */
+        h1 {
+            font-size: 2.2rem;
+            color: #444;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            color: #555;
+            margin: 0.8rem 0 0.3rem;
+        }
+
+        /* Input and Button Styling */
+        input, select, button {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        button {
+            background-color: #ff6f61;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+        }
+
+        button:hover {
+            background-color: #ff4a3d;
+        }
+
+        /* Result Section */
+        #result {
+            margin-top: 1.5rem;
+            font-size: 1.2rem;
+            color: #333;
+            padding: 0.5rem;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            display: none;
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .result-success {
+            color: #28a745;
+        }
+
+        .result-error {
+            color: #dc3545;
+        }
+
+        @keyframes slideIn {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dark Mode Toggle */
+        .dark-mode-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #ff6f61;
+        }
+
+        /* Health Tips Section */
+        .health-tips {
+            font-size: 1rem;
+            color: #555;
+            padding-top: 0.5rem;
+        }
+
+        /* History Section */
+        .history {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #444;
+            border-top: 1px solid #ddd;
+            padding-top: 0.5rem;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            width: 100%;
+            height: 200px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <!-- Dark Mode Toggle -->
+        <span class="dark-mode-toggle" onclick="toggleDarkMode()">🌙</span>
+
+        <!-- Logo -->
+        <img src="https://via.placeholder.com/100" alt="Logo" class="logo">
+
+        <h1>Calorie Burn Calculator 🔥</h1>
+        <form id="calorieForm">
+            <!-- Weight Input -->
+            <label for="weight">Weight (kg) 🏋️‍♂️:</label>
+            <input type="number" id="weight" placeholder="Enter your weight" required>
+
+            <!-- Duration Input -->
+            <label for="duration">Duration (minutes) ⏱️:</label>
+            <input type="number" id="duration" placeholder="Enter duration of activity" required>
+
+            <!-- Intensity Selector with Tooltip -->
+            <label for="intensity">Intensity Level 💪:</label>
+            <select id="intensity" title="Select activity intensity level">
+                <option value="6">Light (e.g., walking) 🐢</option>
+                <option value="8">Moderate (e.g., cycling, dancing) 🚴‍♀️</option>
+                <option value="10">High (e.g., running, swimming) 🏃‍♂️</option>
+            </select>
+
+            <!-- Calculate and Clear Buttons -->
+            <button type="button" onclick="calculateCalories()">Calculate</button>
+            <button type="button" onclick="clearForm()" style="background-color: #dc3545; color: #fff;">Clear</button>
+        </form>
+
+        <!-- Result Display -->
+        <div id="result"></div>
+
+        <!-- Health Tips Display -->
+        <div class="health-tips" id="healthTips"></div>
+
+        <!-- History Display -->
+        <div class="history" id="history"></div>
+
+        <!-- Chart Display -->
+        <div class="chart-container" id="chartContainer"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart Setup
+        const ctx = document.getElementById('chartContainer').getContext('2d');
+        let calorieChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Calories Burned',
+                    data: [],
+                    backgroundColor: ['#ff6f61', '#ff8f61', '#ffaf61']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+
+        // Dark Mode Toggle
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            document.body.style.background = document.body.classList.contains("dark-mode")
+                ? "linear-gradient(135deg, #1a2a6c, #b21f1f)"
+                : "linear-gradient(135deg, #ffb3ba, #ffdfba)";
+        }
+
+        // Calculate Calories
+        function calculateCalories() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const duration = parseFloat(document.getElementById('duration').value);
+            const intensity = parseFloat(document.getElementById('intensity').value);
+            const resultDiv = document.getElementById('result');
+            const historyDiv = document.getElementById('history');
+            const healthTipsDiv = document.getElementById('healthTips');
+
+            if (weight > 0 && duration > 0) {
+                const caloriesBurned = (intensity * weight * (duration / 60)).toFixed(2);
+                resultDiv.className = "result-success";
+                resultDiv.innerHTML = `Calories Burned: <strong>${caloriesBurned} kcal</strong> 🎉`;
+                resultDiv.style.display = "block";
+
+                // Add to chart
+                calorieChart.data.labels.push(`Activity ${calorieChart.data.labels.length + 1}`);
+                calorieChart.data.datasets[0].data.push(caloriesBurned);
+                calorieChart.update();
+
+                // Update health tips
+                healthTipsDiv.innerHTML = caloriesBurned > 200
+                    ? "Awesome job! Keep it up! 🥇"
+                    : "Great start! Try increasing intensity. 💪";
+
+                // Update history
+                historyDiv.innerHTML += `<p>Activity: ${caloriesBurned} kcal burned</p>`;
+            } else {
+                resultDiv.className = "result-error";
+                resultDiv.innerHTML = "Please enter valid weight and duration.";
+                resultDiv.style.display = "block";
+            }
+        }
+
+        // Clear Form
+        function clearForm() {
+            document.getElementById('weight').value = '';
+            document.getElementById('duration').value = '';
+            document.getElementById('intensity').value = '6';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('healthTips').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

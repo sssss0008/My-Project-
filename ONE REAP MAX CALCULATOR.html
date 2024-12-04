@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>One-Rep Max Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .calculator {
+      background-color: #fff;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<div class="calculator">
+  <h2>One-Rep Max Calculator</h2>
+  <label for="weight">Weight Lifted (kg):</label>
+  <input type="number" id="weight" placeholder="Enter weight lifted" required>
+  
+  <label for="reps">Number of Reps:</label>
+  <input type="number" id="reps" placeholder="Enter number of reps" required>
+  
+  <button onclick="calculate1RM()">Calculate 1RM</button>
+  
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+  function calculate1RM() {
+    // Get values from inputs
+    const weight = parseFloat(document.getElementById("weight").value);
+    const reps = parseInt(document.getElementById("reps").value);
+    
+    // Validate input values
+    if (isNaN(weight) || weight <= 0 || isNaN(reps) || reps <= 0) {
+      document.getElementById("result").textContent = "Please enter valid weight and reps.";
+      return;
+    }
+    
+    // Calculate One-Rep Max using the Epley formula: 1RM = weight * (1 + reps / 30)
+    const oneRepMax = weight * (1 + reps / 30);
+    
+    // Display the result
+    document.getElementById("result").textContent = "Your estimated 1RM is: " + oneRepMax.toFixed(2) + " kg";
+  }
+</script>
+
+</body>
+</html>

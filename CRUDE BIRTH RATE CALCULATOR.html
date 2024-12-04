@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Crude Birth Rate Calculator</title>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1f26;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0 20px;
+            flex-direction: column;
+            text-align: center;
+            transition: background-color 0.5s;
+        }
+        .calculator-container {
+            background-color: #282a36;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 255, 255, 0.3);
+            padding: 30px;
+            width: 350px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        .calculator-container:hover {
+            transform: scale(1.02);
+        }
+        h1 {
+            font-size: 24px;
+            color: #50fa7b;
+            margin-bottom: 10px;
+            text-shadow: 0px 0px 10px rgba(80, 250, 123, 0.7);
+        }
+        .info-text {
+            font-size: 14px;
+            color: #bbb;
+            margin-bottom: 20px;
+        }
+        label {
+            font-size: 14px;
+            color: #f8f8f2;
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            font-size: 16px;
+            border: 1px solid #44475a;
+            border-radius: 4px;
+            background-color: #44475a;
+            color: #f8f8f2;
+            text-align: center;
+            transition: box-shadow 0.3s;
+        }
+        input[type="number"]:focus {
+            box-shadow: 0px 0px 8px rgba(80, 250, 123, 0.8);
+            outline: none;
+        }
+        .btn {
+            background-color: #ff79c6;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            margin-top: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            transition: box-shadow 0.3s, transform 0.2s;
+        }
+        .btn:hover {
+            box-shadow: 0px 0px 10px rgba(255, 121, 198, 0.7);
+            transform: scale(1.05);
+        }
+        .result, .history, .download-section {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #50fa7b;
+            text-shadow: 0px 0px 10px rgba(80, 250, 123, 0.7);
+        }
+        .history-container {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 10px;
+            background-color: #3c3f4f;
+            padding: 10px;
+            border-radius: 5px;
+            animation: fadeIn 0.5s;
+        }
+        .history-entry {
+            font-size: 14px;
+            color: #8be9fd;
+            margin: 5px 0;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            color: #ff79c6;
+            font-weight: bold;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 5px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        /* Chart styling */
+        #myChart {
+            margin-top: 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Theme Toggle */
+        .theme-toggle {
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            background-color: transparent;
+            color: #ff79c6;
+            border: none;
+            padding: 5px;
+            transition: transform 0.3s;
+        }
+        .theme-toggle:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>Crude Birth Rate Calculator</h1>
+        
+        <p class="info-text">
+            Calculate the Crude Birth Rate (CBR), which is the number of births per 1,000 people in a given population.
+            <span class="tooltip">[?]
+                <span class="tooltiptext">CBR = (Number of Births / Population) * 1000</span>
+            </span>
+        </p>
+        
+        <label for="births">Number of Births:</label>
+        <input type="number" id="births" placeholder="Enter number of births" oninput="liveCalculateCBR()">
+        
+        <label for="population">Population:</label>
+        <input type="number" id="population" placeholder="Enter population" oninput="liveCalculateCBR()">
+        
+        <button class="btn" onclick="calculateCBR()">Calculate CBR</button>
+        <button class="btn" onclick="resetCalculator()">Reset</button>
+        
+        <div class="result" id="result"></div>
+
+        <h2 class="history">Calculation History</h2>
+        <div class="history-container" id="history-container">
+            <!-- Calculation history will be shown here -->
+        </div>
+        
+        <div class="download-section">
+            <button class="btn" onclick="downloadHistory()">Download History</button>
+            <button class="btn" onclick="exportToCSV()">Export to CSV</button>
+        </div>
+
+        <button class="theme-toggle" onclick="toggleTheme()">Toggle Light/Dark Mode</button>
+
+        <canvas id="myChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let historyEntries = []; // Array to store history entries
+        let isDarkMode = true; // Track theme mode
+
+        // Function to toggle theme
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.style.backgroundColor = isDarkMode ? '#1e1f26' : '#f0f0f0';
+            document.body.style.color = isDarkMode ? '#fff' : '#000';
+            document.querySelector('.calculator-container').style.backgroundColor = isDarkMode ? '#282a36' : '#ffffff';
+            document.querySelectorAll('input[type="number"]').forEach(input => {
+                input.style.backgroundColor = isDarkMode ? '#44475a' : '#e0e0e0';
+                input.style.color = isDarkMode ? '#f8f8f2' : '#000';
+            });
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.style.backgroundColor = isDarkMode ? '#ff79c6' : '#007bff';
+            });
+        }
+
+        // Function to calculate Crude Birth Rate (CBR)
+        function calculateCBR() {
+            const births = document.getElementById('births').value;
+            const population = document.getElementById('population').value;
+
+            if (births > 0 && population > 0) {
+                const cbr = (births / population) * 1000;
+                const resultText = `Crude Birth Rate (CBR): ${cbr.toFixed(2)} per 1000 people`;
+                document.getElementById('result').textContent = resultText;
+                addHistoryEntry(births, population, cbr.toFixed(2));
+                updateChart();
+                saveHistoryToLocal();
+            } else {
+                document.getElementById('result').textContent = 'Please enter valid numbers for births and population.';
+            }
+        }
+
+        // Live calculation on input
+        function liveCalculateCBR() {
+            const births = document.getElementById('births').value;
+            const population = document.getElementById('population').value;
+            const cbrDisplay = document.getElementById('result');
+
+            if (births > 0 && population > 0) {
+                const cbr = (births / population) * 1000;
+                cbrDisplay.textContent = `Estimated CBR: ${cbr.toFixed(2)} per 1000 people`;
+            } else {
+                cbrDisplay.textContent = '';
+            }
+        }
+
+        // Function to reset calculator
+        function resetCalculator() {
+            document.getElementById('births').value = '';
+            document.getElementById('population').value = '';
+            document.getElementById('result').textContent = '';
+            document.getElementById('history-container').innerHTML = '';
+            resetChart();
+            historyEntries = []; // Clear history
+            saveHistoryToLocal();
+        }
+
+        // Function to add entry to history
+        function addHistoryEntry(births, population, cbr) {
+            const entry = { births, population, cbr };
+            historyEntries.push(entry);
+            const historyContainer = document.getElementById('history-container');
+            const entryDiv = document.createElement('div');
+            entryDiv.classList.add('history-entry');
+            entryDiv.textContent = `Births: ${births}, Population: ${population}, CBR: ${cbr}`;
+            historyContainer.appendChild(entryDiv);
+        }
+
+        // Function to update chart
+        function updateChart() {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            const labels = historyEntries.map(entry => `Births: ${entry.births}`);
+            const data = historyEntries.map(entry => entry.cbr);
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Crude Birth Rate (CBR)',
+                        data: data,
+                        backgroundColor: 'rgba(80, 250, 123, 0.6)',
+                        borderColor: 'rgba(80, 250, 123, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'CBR per 1000 people'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to reset chart
+        function resetChart() {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear the chart
+        }
+
+        // Function to save history to local storage
+        function saveHistoryToLocal() {
+            localStorage.setItem('cbrHistory', JSON.stringify(historyEntries));
+        }
+
+        // Function to download history as a text file
+        function downloadHistory() {
+            const blob = new Blob([JSON.stringify(historyEntries, null, 2)], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cbr_history.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to export history as a CSV file
+        function exportToCSV() {
+            const csvRows = [];
+            csvRows.push(['Births', 'Population', 'CBR']); // Header
+            historyEntries.forEach(entry => {
+                csvRows.push([entry.births, entry.population, entry.cbr]);
+            });
+            const csvString = csvRows.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cbr_history.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Load history from local storage on page load
+        window.onload = function() {
+            const storedHistory = localStorage.getItem('cbrHistory');
+            if (storedHistory) {
+                historyEntries = JSON.parse(storedHistory);
+                historyEntries.forEach(entry => addHistoryEntry(entry.births, entry.population, entry.cbr));
+                updateChart();
+            }
+        };
+    </script>
+</body>
+</html>

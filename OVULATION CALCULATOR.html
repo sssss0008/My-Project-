@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌸 Ovulation Calculator 🌸</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #ffcccc, #ffe6e6);
+      text-align: center;
+      animation: bg-animation 5s infinite alternate;
+    }
+
+    @keyframes bg-animation {
+      0% { background-color: #ffe6e6; }
+      100% { background-color: #ffcccc; }
+    }
+
+    h1 {
+      color: #ff4d4d;
+      font-size: 2.5rem;
+      margin-top: 20px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .calculator {
+      background: #fff;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 15px;
+      padding: 20px;
+      width: 90%;
+      max-width: 500px;
+      margin: 30px auto;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    label {
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .slider-container {
+      margin: 20px 0;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .cycle-length {
+      font-size: 1.5rem;
+      color: #ff6666;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #000;
+    }
+
+    .result span {
+      color: #ff4d4d;
+      font-weight: bold;
+    }
+
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      color: #fff;
+      background: #ff4d4d;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn:hover {
+      background: #cc3333;
+    }
+
+    footer {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    footer span {
+      font-size: 1.2rem;
+      color: #ff9999;
+    }
+
+    .history-section {
+      margin-top: 30px;
+      border-top: 1px solid #ffcccc;
+      padding-top: 20px;
+      display: none;
+    }
+
+    .history-item {
+      margin-bottom: 10px;
+    }
+
+    .history-btn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #ff99cc;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .history-btn:hover {
+      background: #cc66b3;
+    }
+
+    .graph-container {
+      margin-top: 20px;
+      width: 80%;
+      max-width: 400px;
+      margin: 30px auto;
+      display: none;
+    }
+
+    .graph-bar {
+      width: 100%;
+      height: 20px;
+      background-color: #ff6666;
+      border-radius: 10px;
+      margin-top: 10px;
+      position: relative;
+    }
+
+    .graph-bar span {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    .tooltip {
+      display: none;
+      position: absolute;
+      background-color: #ff4d4d;
+      color: white;
+      padding: 5px;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+
+    .tooltip.active {
+      display: block;
+    }
+
+    .reminder-container {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .email-input {
+      padding: 10px;
+      font-size: 1rem;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .reminder-btn {
+      background-color: #66cc66;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🌸 Ovulation Calculator 🌸</h1>
+  <div class="calculator">
+    <label for="cycle">Select your cycle length (days):</label>
+    <div class="slider-container">
+      <input type="range" id="cycle" min="21" max="35" value="28" oninput="updateCycleLength(this.value)">
+      <p class="cycle-length">Cycle Length: <span id="cycleValue">28</span> days</p>
+    </div>
+    <label for="lastPeriod">Enter the first day of your last period:</label>
+    <input type="date" id="lastPeriod">
+    <label for="symptoms">Track your symptoms:</label>
+    <input type="text" id="symptoms" placeholder="e.g., bloating, cramps">
+    <label for="mood">How are you feeling today? (Mood):</label>
+    <select id="mood">
+      <option value="happy">😊 Happy</option>
+      <option value="neutral">😐 Neutral</option>
+      <option value="sad">😞 Sad</option>
+    </select>
+    <div class="result">
+      <p>Predicted Ovulation Date: <span id="ovulationDate">Not Calculated</span></p>
+      <p>Fertile Window: <span id="fertileWindow">Not Calculated</span></p>
+      <p>Predicted Menstruation Date: <span id="menstruationDate">Not Calculated</span></p>
+      <p>Your Mood: <span id="moodDisplay">Not Provided</span></p>
+      <p>Your Symptoms: <span id="symptomsDisplay">Not Provided</span></p>
+    </div>
+    <button class="btn" onclick="calculateOvulation()">🔍 Calculate</button>
+    <button class="btn" onclick="resetFields()">🔄 Reset</button>
+    <div class="reminder-container">
+      <label for="email">Enter your email to get an ovulation reminder:</label>
+      <input type="email" id="email" class="email-input" placeholder="youremail@example.com">
+      <button class="reminder-btn" onclick="setReminder()">Set Reminder 📧</button>
+    </div>
+  </div>
+  <div class="history-section" id="historySection">
+    <h2>Your Previous Cycles:</h2>
+    <div id="cycleHistory"></div>
+    <button class="history-btn" onclick="toggleGraph()">📊 View Graph</button>
+  </div>
+  <div class="graph-container" id="graphContainer">
+    <div class="graph-bar" id="cycleGraph">
+      <span>Cycle Length Graph</span>
+    </div>
+  </div>
+
+
+  <script>
+    let history = [];
+
+    function updateCycleLength(value) {
+      document.getElementById('cycleValue').textContent = value;
+    }
+
+    function calculateOvulation() {
+      const cycleLength = parseInt(document.getElementById('cycle').value);
+      const lastPeriodDate = document.getElementById('lastPeriod').value;
+      const mood = document.getElementById('mood').value;
+      const symptoms = document.getElementById('symptoms').value;
+
+      if (lastPeriodDate) {
+        const lastPeriod = new Date(lastPeriodDate);
+        const ovulationDate = new Date(lastPeriod);
+        ovulationDate.setDate(lastPeriod.getDate() + cycleLength - 14);
+        const menstruationDate = new Date(ovulationDate);
+        menstruationDate.setDate(ovulationDate.getDate() - cycleLength + 28);
+
+        const fertileWindowStart = new Date(ovulationDate);
+        fertileWindowStart.setDate(ovulationDate.getDate() - 5);
+        const fertileWindowEnd = new Date(ovulationDate);
+        fertileWindowEnd.setDate(ovulationDate.getDate() + 1);
+
+        // Update the result display
+        document.getElementById('ovulationDate').textContent = ovulationDate.toLocaleDateString();
+        document.getElementById('fertileWindow').textContent = `${fertileWindowStart.toLocaleDateString()} - ${fertileWindowEnd.toLocaleDateString()}`;
+        document.getElementById('menstruationDate').textContent = menstruationDate.toLocaleDateString();
+        document.getElementById('moodDisplay').textContent = mood;
+        document.getElementById('symptomsDisplay').textContent = symptoms;
+
+        // Save to history
+        const entry = {
+          ovulationDate: ovulationDate.toLocaleDateString(),
+          fertileWindow: `${fertileWindowStart.toLocaleDateString()} - ${fertileWindowEnd.toLocaleDateString()}`,
+          menstruationDate: menstruationDate.toLocaleDateString(),
+        };
+        history.push(entry);
+        localStorage.setItem('cycleHistory', JSON.stringify(history));
+        showHistory();
+      } else {
+        alert('Please enter a valid date!');
+      }
+    }
+
+    function showHistory() {
+      const historyContainer = document.getElementById('cycleHistory');
+      historyContainer.innerHTML = '';
+
+      const storedHistory = JSON.parse(localStorage.getItem('cycleHistory')) || [];
+      storedHistory.forEach((entry, index) => {
+        const historyItem = document.createElement('div');
+        historyItem.classList.add('history-item');
+        historyItem.innerHTML = `
+          <strong>Cycle ${index + 1}:</strong> Ovulation on ${entry.ovulationDate}, Fertile Window: ${entry.fertileWindow}
+        `;
+        historyContainer.appendChild(historyItem);
+      });
+
+      document.getElementById('historySection').style.display = storedHistory.length > 0 ? 'block' : 'none';
+    }
+
+    function resetFields() {
+      document.getElementById('cycle').value = 28;
+      document.getElementById('lastPeriod').value = '';
+      document.getElementById('symptoms').value = '';
+      document.getElementById('mood').value = 'happy';
+      document.getElementById('cycleValue').textContent = '28';
+      document.getElementById('ovulationDate').textContent = 'Not Calculated';
+      document.getElementById('fertileWindow').textContent = 'Not Calculated';
+      document.getElementById('menstruationDate').textContent = 'Not Calculated';
+      document.getElementById('moodDisplay').textContent = 'Not Provided';
+      document.getElementById('symptomsDisplay').textContent = 'Not Provided';
+    }
+
+    function toggleGraph() {
+      document.getElementById('graphContainer').style.display = 
+        document.getElementById('graphContainer').style.display === 'none' ? 'block' : 'none';
+      updateGraph();
+    }
+
+    function updateGraph() {
+      const cycleData = JSON.parse(localStorage.getItem('cycleHistory')) || [];
+      const cycleLength = cycleData.length ? cycleData[cycleData.length - 1].cycleLength : 28;
+      const graph = document.getElementById('cycleGraph');
+      graph.style.width = `${cycleLength * 10}px`; // Scaling the graph bar width based on cycle length
+    }
+
+    function setReminder() {
+      const email = document.getElementById('email').value;
+      if (email) {
+        alert(`Reminder set! You'll receive a reminder for your ovulation via email at ${email}.`);
+      } else {
+        alert('Please enter a valid email address!');
+      }
+    }
+
+    window.onload = showHistory;
+  </script>
+</body>
+</html>

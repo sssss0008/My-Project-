@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💪 Arm Body Fat & BMI Calculator</title>
+    <style>
+        /* General Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #00c6ff, #0072ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            color: #fff;
+        }
+
+        .calculator-container {
+            background: #222;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            width: 350px;
+            animation: fadeIn 1s ease-in-out;
+            position: relative;
+        }
+
+        .calculator-container h2 {
+            font-size: 24px;
+            color: #ffd700;
+            margin: 10px 0;
+        }
+
+        .input-group {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .input-group label {
+            font-size: 16px;
+            color: #ddd;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #555;
+            margin-top: 5px;
+            background-color: #333;
+            color: #ffd700;
+            font-size: 14px;
+        }
+
+        .btn {
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .calculate-btn { background-color: #4CAF50; }
+        .calculate-btn:hover { background-color: #45a049; }
+
+        .copy-btn { background-color: #2196F3; }
+        .copy-btn:hover { background-color: #0b7dda; }
+
+        .clear-btn { background-color: #ff5722; }
+        .clear-btn:hover { background-color: #e64a19; }
+
+        .print-btn { background-color: #607d8b; }
+        .print-btn:hover { background-color: #455a64; }
+
+        .result {
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .history {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ddd;
+            max-height: 150px;
+            overflow-y: auto;
+            border-top: 1px solid #444;
+            padding-top: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator-container">
+    <h2>💪 Arm Body Fat & BMI Calculator 💪</h2>
+    <div class="input-group">
+        <label for="age">🧑 Age:</label>
+        <input type="number" id="age" min="1" placeholder="Enter your age">
+    </div>
+    <div class="input-group">
+        <label for="weight">⚖️ Weight (kg):</label>
+        <input type="number" id="weight" min="1" placeholder="Enter your weight">
+    </div>
+    <div class="input-group">
+        <label for="height">📏 Height (cm):</label>
+        <input type="number" id="height" min="1" placeholder="Enter your height">
+    </div>
+    <div class="input-group">
+        <label for="armCircumference">💪 Arm Circumference (cm):</label>
+        <input type="number" id="armCircumference" min="1" placeholder="Enter arm circumference">
+    </div>
+    <button class="btn calculate-btn" onclick="calculateBodyFat()">📊 Calculate</button>
+    <div class="result" id="result">Your results will appear here.</div>
+    <button class="btn copy-btn" onclick="copyResult()">📋 Copy Result</button>
+    <button class="btn clear-btn" onclick="clearInputs()">🧹 Clear Inputs</button>
+    <button class="btn print-btn" onclick="printResult()">🖨️ Print Result</button>
+
+    <div class="history" id="history"><h4>📜 Calculation History</h4></div>
+</div>
+
+<script>
+    let historyLog = [];
+
+    function calculateBodyFat() {
+        const age = parseInt(document.getElementById('age').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+        const height = parseFloat(document.getElementById('height').value);
+        const armCircumference = parseFloat(document.getElementById('armCircumference').value);
+        const resultElement = document.getElementById('result');
+
+        // Validation
+        if (!age || !weight || !height || !armCircumference) {
+            resultElement.innerText = "⚠️ Please fill all fields correctly.";
+            return;
+        }
+
+        // Body Fat Calculation (Placeholder formula for demonstration)
+        const bodyFat = ((armCircumference / weight) * age * 0.1).toFixed(2);
+
+        // BMI Calculation
+        const heightMeters = height / 100;
+        const bmi = (weight / (heightMeters * heightMeters)).toFixed(2);
+
+        // Display results
+        resultElement.innerHTML = `
+            🏋️ Estimated Arm Body Fat: <span style="color: #4CAF50;">${bodyFat}%</span><br>
+            📊 BMI: <span style="color: #2196F3;">${bmi}</span>
+        `;
+
+        // Update History
+        const historyEntry = `Age: ${age}, Weight: ${weight}kg, Arm Circumference: ${armCircumference}cm, Body Fat: ${bodyFat}%, BMI: ${bmi}`;
+        historyLog.push(historyEntry);
+        updateHistory();
+    }
+
+    function updateHistory() {
+        const historyElement = document.getElementById('history');
+        historyElement.innerHTML = '<h4>📜 Calculation History</h4>';
+        historyLog.forEach((entry, index) => {
+            historyElement.innerHTML += `<p>${index + 1}. ${entry}</p>`;
+        });
+    }
+
+    function copyResult() {
+        const resultText = document.getElementById('result').innerText;
+        if (!resultText) {
+            alert("⚠️ No result to copy!");
+            return;
+        }
+
+        // Copy result text to clipboard
+        const tempInput = document.createElement("input");
+        document.body.appendChild(tempInput);
+        tempInput.value = resultText;
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+
+        alert("✅ Result copied to clipboard!");
+    }
+
+    function clearInputs() {
+        document.getElementById('age').value = '';
+        document.getElementById('weight').value = '';
+        document.getElementById('height').value = '';
+        document.getElementById('armCircumference').value = '';
+        document.getElementById('result').innerText = 'Your results will appear here.';
+    }
+
+    function printResult() {
+        const printContents = document.getElementById('result').innerHTML;
+        const newWindow = window.open('', '_blank');
+        newWindow.document.write(`
+            <html>
+                <head><title>Print Result</title></head>
+                <body>${printContents}</body>
+            </html>
+        `);
+        newWindow.document.close();
+        newWindow.print();
+    }
+</script>
+
+</body>
+</html>
